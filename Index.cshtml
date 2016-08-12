@@ -1,0 +1,243 @@
+﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int?>
+@{
+
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section styles {
+    <style type="text/css">
+        .userMgnBtmSm {
+            padding-bottom: 15px;
+        }
+    </style>
+}
+
+
+<div class="bg-primary">
+    <h2 class="col-sm-offset-1">User Information @Model.Item</h2>
+</div>
+<div class="panel">
+    <div class="panel-body">
+        <div class="example-box-wrapper">
+            <form class="form-horizontal bordered-row" id="user-information" data-parsley-validate>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="userMgnBtmSm row">
+                            <label class="col-sm-3 control-label">Salutation</label>
+                            <div class="col-sm-6">
+                                <select id="salutationId" select name="SalutationId" class="chosen-select">
+                                    <option value="">--</option>
+                                    <option value="1">Mr.</option>
+                                    <option value="2">Mrs.</option>
+                                    <option value="3">Ms.</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="userMgnBtmSm row">
+                            <label for="FirstName" class="col-sm-3 control-label">First Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="firstName" name="FirstName" data-parsley-range="[3,25]" placeholder="Between 3 and 25 characters" required class="form-control" data-parsley-id="9747" />
+                                <ul class="parsley-errors-list" id="parsley-id-9747"></ul>
+                            </div>
+                        </div>
+                        <div class="userMgnBtmSm row">
+                            <label for="MiddleInitial" class="col-sm-3 control-label">Middle Initial (optional)</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="middleInitial" name="MiddleInitial" data-parsley-maxlength="5" placeholder="At most 5 characters" required class="form-control" /><br />
+                            </div>
+                        </div>
+                        <div class="userMgnBtmSm row">
+                            <label for="Last Name" class="col-sm-3 control-label">Last Name</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="lastName" name="LastName" data-parsley-range="[3,25]" placeholder="Between 3 and 25 characters" required class="form-control" /><br />
+                            </div>
+                        </div>
+                        <div class="userMgnBtmSm row">
+                            <label for="Phone Number" class="col-sm-3 control-label">Phone Number</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="phoneNumber" name="PhoneNumber" data-parsley-minlength="10" placeholder="At least 10 characters" required class="form-control" /><br />
+                            </div>
+                        </div>
+                        <div class="userMgnBtmSm row">
+                            <label for="Email" class="col-sm-3 control-label">Email</label>
+                            <div class="col-sm-6">
+                                <input type="email" id="email" name="Email" data-parsley-range="[3,25]" placeholder="Between 3 and 25 characters" required class="form-control" /><br />
+                            </div>
+                        </div>
+                        <div class="userMgnBtmSm row">
+                            <label for="Date of Birth" class="col-sm-3 control-label">Date of Birth (MM/DD/YYYY)</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="dateOfBirth" name="DateOfBirth" placeholder="Required Field" required class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="bg-default content-box text-center pad20A mrg25T">
+                        <button type="button" id="btn-submit-sample" class="btn btn-lg btn-primary">Submit Form</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/sabio.services.users.js"></script>
+    <script src="~/assets/admin/widgets/parsley/parsley.js"></script>
+    <script src="~/assets/admin/widgets/daterangepicker/moment.js"></script>
+    <script>
+
+        sabio.page.userid = '@Model.Item';
+    </script>
+
+    <script type="text/javascript">
+        sabio.page.startUp = function () {
+
+            if (sabio.page.userid) {
+
+                sabio.services.users.getUserById(sabio.page.userid, sabio.page.AjaxGetSuccess, sabio.page.AjaxError);
+                console.log("Getting user by ID");
+            }
+
+            $("#btn-submit-sample").on("click", sabio.page.handlers.formSubmit)
+
+            sabio.page.initializeValidation();
+        };
+
+        sabio.page.initializeValidation = function () {
+            jQuery.validator.setDefaults({
+                debug: true
+            });
+            $("#user-information").validate({
+                rules: {
+                    "SalutationId": {
+                        required: true
+                    },
+                    "FirstName": {
+                        required: true,
+                        minlength: 1,
+                        maxlength: 25
+                    },
+                    "MiddleInitial": {
+                        required: false,
+                        maxlength: 5
+                    },
+                    "LastName": {
+                        required: true,
+                        minlength: 1,
+                        maxlength: 25
+                    },
+                    "PhoneNumber": {
+                        required: true,
+                        maxlength: 10
+                    },
+                    "Email": {
+                        required: true,
+                        email: true,
+                        maxlength: 25
+                    },
+                    "DateOfBirth": {
+                        required: true,
+                        maxlength: 10
+                    }
+                },
+                messages: {
+                    "SalutationId": {
+                        required: "Please choose one"
+                    },
+                    "FirstName": {
+                        required: "First name is required",
+                        minlength: "First name must be 3 characters or longer",
+                        maxlength: "Last name must be 25 or fewer characters"
+                    },
+                    "MiddleInitial": {
+                        maxlength: "Maximum length exceeded"
+                    },
+                    "LastName": {
+                        required: "Last name is required",
+                        minlength: "Last name must be 3 characters or longer",
+                        maxlength: "Last name must be 25 or fewer characters"
+                    },
+                    "PhoneNumber": {
+                        required: "Phone number is required",
+                        minlength: "Please enter a valid phone number"
+                    },
+                    "Email": {
+                        required: "Email is required",
+                        email: "Please enter a valid email address",
+                        maxlength: "Your email address is too long"
+                    },
+                    "DateOfBirth": {
+                        required: "Birth date is required",
+                        minlength: "Enter birth date in the form of MM/DD/YYYY",
+                        maxlength: "Enter birth date in the form of MM/DD/YYYY"
+                    }
+
+                }
+            });
+        };
+
+        sabio.page.handlers.formSubmit = function () {
+
+            if ($("#user-information").valid()) {
+
+                var myData = $("#user-information").serialize();
+
+                if (sabio.page.userid) {
+
+                    var data = myData + '&Id=' + sabio.page.userid
+                    sabio.services.users.update(sabio.page.userid, data, sabio.page.AjaxPutSuccess, sabio.page.AjaxError);
+                }
+
+                else {
+                    sabio.services.users.add(myData, sabio.page.AjaxPostSuccess, sabio.page.AjaxError);
+                }
+            }
+
+        }
+
+        sabio.page.AjaxGetSuccess = function (data, status, xhr) {
+            console.log(sabio.page.userid);
+            sabio.page.populateForm(0, data.item);
+        }
+
+        sabio.page.formatDate = function (date) {
+            return moment(date).format('L');
+        }
+
+        sabio.page.populateForm = function (userIndex, userData) {
+
+            var convertedDate = sabio.page.formatDate(userData.dateOfBirth);
+
+            $("#salutationId").val(userData.salutationId);
+            $("#firstName").val(userData.firstName);
+            $("#middleInitial").val(userData.middleInitial);
+            $("#lastName").val(userData.lastName);
+            $("#phoneNumber").val(userData.phoneNumber);
+            $("#email").val(userData.email);
+            $("#dateOfBirth").val(convertedDate);
+
+        }
+
+        sabio.page.AjaxPostSuccess = function (data, status, xhr) {
+            console.log(data.item);
+            sabio.page.userid = data.item;
+        }
+
+        sabio.page.AjaxPutSuccess = function (data, status, xhr) {
+            console.log("success");
+        }
+
+        sabio.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
+            $("#msgWindow").addClass("alert-danger");
+            $("#msgWindow").removeClass("alert-info");
+
+            sabio.page.logToBottom = function (data) {
+                $("itemId").html(JSON.stringify(data));
+            }
+        }
+    </script>
+}

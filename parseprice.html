@@ -1,0 +1,65 @@
+﻿<div class="body-content" ng-controller="parseController as parse">
+
+    <div style="padding-bottom:15px; padding-top:15px;">
+        <div class="example-box-wrapper style=">
+            <div class="row">
+                <span class="btn btn-md btn-default fileinput-button col-md-2">
+                    <i class="glyph-icon icon-plus"></i>
+                    Add File....
+                    <input type="file" data-file="param.file" ng-model="parse.items"
+                           id="parseFile" aria-label="Toggle ngHide" />
+                </span>
+                <span class="btn btn-md btn-default start col-md-2" ng-click="parse.parse()">
+                    <i class="glyph-icon icon-eye"></i>
+                    Parse File
+                </span>
+                <span class="btn btn-alt btn-hover btn-default col-md-2" data-ng-click="parse.postAll(parse.items)">
+                    <span>Insert All {{parse.items.length}} Items</span>
+                    <i class="glyph-icon icon-arrow-right"></i>
+                </span>
+
+                <span class="btn btn-alt btn-hover btn-default col-md-2" data-ng-click="parse.updateAllAddresses()">
+                    <span>Update All {{parse.items.length}} Items</span>
+                    <i class="glyph-icon icon-arrow-right"></i>
+                </span>
+            </div>
+        </div>
+
+
+        <div class="panel parse.items animate-show" ng-show="parse.items">
+            <div class="panel-body" style="text-align:center;">
+                <div class="row parseTable">
+                    <div class="panel-heading parseHeader">Property List - File:  {{ param.file }}</div>
+                    <div class="row" style="font-weight:600">
+                        <div class="col-md-1">External ID</div>
+                        <div class="col-md-1">Street Number</div>
+                        <div class="col-md-2">Street Name</div>
+                        <div class="col-md-1">Unit</div>
+                        <div class="col-md-2">City</div>
+                        <div class="col-md-1">State</div>
+                        <div class="col-md-1">Zipcode</div>
+                        <div class="col-md-1">Maximum Allowable Rent</div>
+                    </div>
+
+                </div>
+
+                <div class="row panel-body" style="text-align:center">
+                    <div class="row animate-repeat parseTable" data-ng-repeat="prop in parse.items"
+                         style="padding-top:10px; padding-bottom:10px;">
+                        <div class="col-md-1">{{prop.ExternalId}}</div>
+                        <div class="col-md-1">{{prop.StreetNumber}}</div>
+                        <div class="col-md-2">{{prop.StreetName}}</div>
+                        <div class="col-md-1">{{prop.Unit}}</div>
+                        <div class="col-md-2">{{prop.City}}</div>
+                        <div class="col-md-1">{{prop.State}}</div>
+                        <div class="col-md-1">{{prop.Zipcode}}</div>
+                        <div class="col-md-1">{{prop.MaximumAllowableRent}}</div>
+                        <div class="btn-group-md">
+                            <button type="button" clicked-disable data-ng-click="parse.post(prop)" class="btn btn-default postProperty" ng-disabled="isDisabled" ng-model="isDisabled">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

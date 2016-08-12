@@ -1,0 +1,70 @@
+﻿<div class="body-content" ng-controller="importController as importCtrl">
+    <div style="padding-bottom:15px; padding-top:15px;">
+        <div class="example-box-wrapper style=">
+            <div class="row">
+                <span class="btn btn-md btn-default fileinput-button col-md-2">
+                    <i class="glyph-icon icon-plus"></i>
+                    Add File....
+                    <input type="file" data-file="param.file" ng-model="importCtrl.items"
+                           id="parseFile" aria-label="Toggle ngHide"  />
+                </span>
+                <span class="btn btn-md btn-default start col-md-2" ng-click="importCtrl.parse()">
+                    <i class="glyph-icon icon-eye"></i>
+                    Parse File
+                </span>
+                <span class="btn btn-alt btn-hover btn-default col-md-2" data-ng-click="importCtrl.postAll(importCtrl.items)">
+                    <span>Insert All {{importCtrl.items.length}} Items</span>
+                    <i class="glyph-icon icon-arrow-right"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="panel importCtrl.items animate-show" ng-show="importCtrl.items">
+        <div class="panel-body" style="text-align:center;">
+            <div class="row" style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-size: 12px; color:#3e4855; background-color:#FEFEFF;">
+                <div class="panel-heading" style="text-align:left; padding-bottom:15px;
+                        font-size:17px">Property List - File:{{ param.file }}</div>
+                <div class="row" style="font-weight:400">
+                    <div class="col-lg-1">APN</div>
+                    <div class="col-lg-1">Property Type</div>
+                    <div class="col-lg-1">Property Address</div>
+                    <div class="col-lg-1">Property City</div>
+                    <div class="col-lg-1" style="width: 50px">Property State</div>
+                    <div class="col-lg-1" style="width: 50px">Property Zip</div>
+                    <div class="col-lg-1">Lender</div>
+                    <div class="col-lg-1">Lender Contact</div>
+                    <div class="col-lg-1">Lender Contact Phone</div>
+                    <div class="col-lg-1">Property Mgmt</div>
+                    <div class="col-lg-1">Property Mgmt Contact</div>
+                    <div class="col-lg-1">Property Mgmt Contact Phone</div>
+                </div>
+
+            </div>
+
+            <div class="row panel-body">
+                <div class="row animate-repeat" data-ng-repeat="prop in importCtrl.items"
+                     style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; color:#3e4855; background-color:#FEFEFF; padding-top:10px; padding-bottom:10px;">
+                    <div class="col-lg-1">{{prop.APN}}</div>
+                    <div class="col-lg-1">{{prop.PropertyType}}</div>
+                    <div class="col-lg-1">{{prop.PropertyAddress}}</div>
+                    <div class="col-lg-1">{{prop.PropertyCity}}</div>
+                    <div class="col-lg-1" style="width: 50px">{{prop.PropertyState}}</div>
+                    <div class="col-lg-1" style="width: 50px">{{prop.PropertyZip}}</div>
+                    <div class="col-lg-1">{{prop.Lender}}</div>
+                    <div class="col-lg-1">{{prop.LenderContact}}</div>
+                    <div class="col-lg-1">{{prop.LenderContactPhone}}</div>
+                    <div class="col-lg-1">{{prop.PropertyManagement}}</div>
+                    <div class="col-lg-1">{{prop.PropertyManagementContact}}</div>
+                    <div class="col-lg-1">{{prop.PropertyMgmtContactPhone}}</div>
+                    <div class="btn-group-md">
+                        <button type="button" clicked-disable data-ng-click="importCtrl.post(prop)" class="btn btn-default postProperty" ng-disabled="isDisabled" ng-model="isDisabled">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

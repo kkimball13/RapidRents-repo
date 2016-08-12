@@ -1,0 +1,156 @@
+﻿
+@{
+    ViewBag.Title = "List";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h2 align="center">List of Users</h2>
+
+<div class="example-box-wrapper" id="listAppend">
+</div>
+
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/sabio.services.users.js"></script>
+    <script src="~/assets/admin/widgets/daterangepicker/moment.js"></script>
+    <script type="text/javascript">
+
+
+
+        sabio.page.startUp = function () {
+
+            sabio.page.userContainer = $('#listAppend');
+            sabio.page.getUsers();
+
+            $('#listAppend').on('click', '.deleteUser', sabio.page.deleteUser);
+            
+        }
+
+        sabio.page.formatDate = function (date) {
+            return moment(date).format('L');
+        }
+
+        sabio.page.getUsers = function () {
+
+            sabio.services.users.getUsers(sabio.page.handlers.onGetSuccess, sabio.page.AjaxError)
+
+        };
+
+        sabio.page.handlers.onGetSuccess = function (data) {
+            console.log(data.items)
+            if (data && data.items) {
+                sabio.page.processUsers(data.items);
+            }
+
+        }
+
+        sabio.page.processUsers = function (arrUsers) {
+
+            for (var i = 0; i < arrUsers.length; i++) {
+                var currentUser = arrUsers[i];
+                sabio.page.processUser(i, currentUser);
+            }
+
+        }
+
+        sabio.page.processUser = function (userIndex, userData) {
+            
+            var displayName = sabio.page.getDisplayName(userData);
+            var convertedDate = sabio.page.formatDate(userData.dateOfBirth);
+
+            var item = $($("#listItemTemplate").html());
+            item.find(".fullname").text(displayName);
+            item.find(".user-id").text(userData.id);
+            item.find(".phone-number").text(userData.phoneNumber);
+            item.find(".email").text(userData.email);
+            item.find(".birth-date").text(convertedDate);
+            item.find(".date-added").text(userData.dateAdded);
+            item.find(".date-modified").text(userData.dateModified);
+
+            item.find(".deleteUser").attr("id", userData.id);
+            item.find("a").attr("href", ("/users/" + (userData.id) + "/edit"));
+
+
+            sabio.page.appendUser(item);
+        }
+
+        sabio.page.appendUser = function (jqUserObject) {
+
+            sabio.page.userContainer.append(jqUserObject);
+
+        }
+
+        sabio.page.getDisplayName = function (userData) {
+
+            var salutation;
+            switch (userData.salutationId) {
+                case 1:
+                    salutation = "Mr."
+                    break;
+                case 2:
+                    salutation = "Mrs."
+                    break;
+                case 3:
+                    salutation = "Ms."
+                    break;
+                default:
+                    salutation = ""
+            }
+
+            var displayName = salutation + " "
+                + userData.firstName + " "
+                + userData.middleInitial + " "
+                + userData.lastName;
+
+            return displayName;
+        }
+
+
+        sabio.page.deleteUser = function () {
+            console.log("delete pushed");
+            var id = $(this).attr("id");
+            sabio.services.users.deleteUserById(id, sabio.page.handlers.deleteSuccess, sabio.page.AjaxError);
+        }
+
+
+        sabio.page.handlers.deleteSuccess = function (data, userId) {
+
+            $("#" + userId).closest("#listAppend").remove();
+        }
+ 
+
+        sabio.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
+            $("#msgWindow").addClass("alert-danger");
+            $("#msgWindow").removeClass("alert-info");
+        }
+
+    </script>
+
+    <script type="text/template" id="listItemTemplate">
+        <div class="example-box-wrapper userList col-lg-6" id="listAppend">
+            <div class="content-box">
+                <div class="content-box-header bg-primary">
+                    <div class="fullname"></div>
+                </div>
+                <div class="content-box-wrapper">
+                    <div>User ID: <span class="user-id"></span> </div>
+                    <div>Phone Number: <span class="phone-number"></span></div>
+                    <div>Email: <span class="email"></span> </div>
+                    <div>Date of Birth: <span class="birth-date"></span> </div>
+                    <div>Date Added: <span class="date-added"></span></div>
+                    <div>Date Modified: <span class="date-modified"></span></div>
+                    <div class="row">
+                        <div class="button">
+                            <a href="#" class="btn btn-border btn-alt border-black btn-link font-black editUser">Edit User</a>
+                            <button type="button" class="btn btn-border btn-alt border-red btn-link font-red deleteUser">Delete User</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  
+    </script>
+
+}
+
