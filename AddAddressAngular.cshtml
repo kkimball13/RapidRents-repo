@@ -1,0 +1,1153 @@
+﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int?>
+@{
+
+    ViewBag.Title = "AddAddressAngular";
+
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section styles{
+    <style type="text/css">
+    #map-canvas {
+        width: 150%;
+        height: 400px;
+        background-color: #CCC;
+    }
+
+    .urgency {
+        font-size: 16px;
+    }
+
+    .disc {
+        font-size: 22px;
+    }
+
+    .tile-header {
+        height: 26px;
+    }
+
+        .addrAngContainer {
+            max-height: 155px;
+            min-height: 155px;
+        }
+
+        .addrAngMgnBtm {
+            padding-bottom: 75px;
+        }
+
+        .addrAngMgnBtmSm {
+            padding-bottom: 15px;
+        }
+
+        .addrAngAddress {
+            max-height: 75px;
+            min-height: 75px;
+        }
+
+        .addrAngFormGroup {
+            padding: 30px;
+        }
+</style>
+}
+
+<h2 id="top">Available Addresses</h2>
+<div class="row">
+    <div class="">
+        <div class="panel panel-default">
+            <div class="panel-body"
+                 data-ng-controller="addressController as addressCtrl"
+                 id="addressController">
+                <div class="row">
+                    <div class="panel-body text-center">
+                        <button type="button" ng-click="addressCtrl.selectAddress(null)" class="btn btn-info bg-primary">
+                            Add New Address
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="map-canvas"></div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="content-box-wrapper col-md-6 addrAngContainer addrAngMgnBtm" data-ng-repeat="address in addressCtrl.items track by address.id">
+                        <div class="panel-body text-center">
+                            <div class="addressLine addrAngAddress" style="cursor: pointer;" ng-click="addressCtrl.placeMarker(address, address.id)">
+                                <div class="line1">{{address.line1}}</div>
+                                <div class="line2">{{address.line2}}</div>
+                                <div><span class="city">{{address.city}}</span>, <span class="stateId">{{address.state | stateProvinceCodeFilter}}</span> <span class="zipcode"> {{address.zipCode}}</span></div>
+                                <div>
+                                    <h5 ng-show="address.amenities">Amenities Included: <span ng-repeat="amenity in address.amenities">{{amenity.amenityName}}{{$last ? '' : ', '}}</span></h5>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="btn-group">
+                            <button type="button" ng-click="addressCtrl.selectAddress(address)" class="btn btn-primary">Edit</button>
+                            </div>
+                            <div class="btn-group">
+                            <button type="button" ng-click="addressCtrl.deleteAddress(address)" class="btn btn-warning">Delete</button>
+                        </div>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    Maintenance
+                                    <span class="caret"></span>
+                                    <div class="ripple-wrapper"></div>
+                                </button>
+                                <div class="dropdown-backdrop"></div>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a href="#" ng-click="addressCtrl.openMRModal(address)"><i class="glyph-icon icon-wrench"> </i>New Maintenance Request</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" ng-click="addressCtrl.getMaintReq(address)"><i class="glyph-icon icon-list"> </i>View Maintenance Request</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="text/ng-template" id="modalContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title text-center">Add/Edit Address</h3>
+    </div>
+    <div class="modal-body">
+        <form id="modalForm" name="mc.modalForm" ng-submit="mc.ok()" novalidate>
+            <div class="addrAngMgnBtmSm">
+                <label>Line 1:</label>
+                <input type="text" class="form-control ng-class:{'error': mc.showAddressErrors && !mc.modalForm.line1.$valid}"
+                       placeholder="Line 1"
+                       name="line1"
+                       id="line1"
+                       ng-model="mc.addressObject.line1"
+                       required>
+                <div role="alert" class="help-inline error">
+                    <span class="error" ng-show="mc.showAddressErrors && mc.modalForm.line1.$error.required">Address required</span>
+                </div>
+            </div>
+
+            <div class="addrAngMgnBtmSm">
+                <label>Line 2:</label>
+                <input type="text"
+                       class="form-control ng-class:{'error': mc.showAddressErrors && !mc.modalForm.line2.$valid}"
+                       placeholder="Line 2"
+                       name="line2"
+                       id="line2"
+                       ng-model="mc.addressObject.line2">
+            </div>
+
+            <div class="addrAngMgnBtmSm">
+                <label>City:</label>
+                <input type="text"
+                       class="form-control ng-class:{'error': mc.showAddressErrors && !mc.modalForm.city.$valid}"
+                       placeholder="City"
+                       name="city"
+                       id="city"
+                       ng-model="mc.addressObject.city"
+                       required>
+                <div role="alert" class="help-inline error">
+                    <span class="error" ng-show="mc.showAddressErrors && mc.modalForm.city.$error.required">City required</span>
+                </div>
+            </div>
+
+            <div class="addrAngMgnBtmSm">
+                <label>State:</label>
+                <select class="form-control ng-class:{'error': mc.showAddressErrors && !mc.modalForm.state.$valid}"
+                        placeholder="state"
+                        id="state"
+                        name="state"
+                        ng-model="mc.addressObject.state"
+                        required convert-to-number>
+
+                    <option value="{{state.stateProvinceId}}" ng-repeat="state in mc.states track by state.stateProvinceId">{{state.stateProvinceCode}}</option>
+                </select>
+                <div role="alert" class="help-inline error">
+                    <span class="error" ng-show="mc.showAddressErrors && mc.modalForm.state.$error.required">State required</span>
+                </div>
+            </div>
+
+            <div class="addrAngMgnBtmSm">
+                <label>Zip Code:</label>
+                <input type="text"
+                       class="form-control ng-class:{'error': mc.showAddressErrors && !mc.modalForm.zipCode.$valid}"
+                       placeholder="Zip code"
+                       name="zipcode"
+                       id="zipcode"
+                       ng-model="mc.addressObject.zipCode"
+                       required>
+                <div role="alert" class="help-inline error">
+                    <span class="error" ng-show="mc.showAddressErrors && mc.modalForm.zipCode.$error.required">Zip code required</span>
+                </div>
+            </div>
+
+            <div>
+                <label>Amenities Included</label>
+                <div class="amenities">
+                    <ui-select multiple ng-model="mc.addressObject.amenities" theme="bootstrap" close-on-select="true">
+                        <ui-select-match placeholder="Select amenities">{{$item.amenityName}}</ui-select-match>
+                        <ui-select-choices repeat="amenity in mc.amenities">
+                            <small>{{amenity.amenityName}}</small>
+                        </ui-select-choices>
+                    </ui-select>
+                    <div role="alert" class="help-inline error">
+                        <span class="error" ng-show="mc.showAddressErrors && mc.modalForm.amenity.$error.required">Please indicate if there are any amenities included in this listing</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="mc.ok()">OK</button>
+        <button class="btn btn-warning" ng-click="mc.cancel()">Cancel</button>
+    </div>
+</script>
+
+
+
+<script type="text/ng-template" id="modalMRContent.html">
+
+    <form class="form-group" id="maintenanceForm" name="mMRc.maintenanceForm" ng-submit="mMRc.ok()" role="form">
+        <div class="modal-header">
+            <h3 class="modal-title text-center">New Maintenance Request</h3>
+        </div>
+        <div class="modal-body">
+            <div hidden>
+                {{mMRc.maintReqObj}}
+            </div>
+
+            <div class="addrAngFormGroup">
+                <label class="col-sm-3 lable">Name</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control"
+                           ng-class="{'error': mMRc.shownewMRFormErrors && !mMRc.maintenanceForm.name.$valid}"
+                           placeholder="name"
+                           name="name"
+                           id="name"
+                           ng-model="mMRc.maintReqObj.name"
+                           ng-minlength="2"
+                           ng-maxlength="50"
+                           required />
+                    <div role="alert" class="help-inline error">
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.name.$error.required">Name is required</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.name.$error.minlength">Name must be at least 2 characters</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.name.$error.maxlength">Name must be 50 characters or less</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="addrAngFormGroup">
+                <label class="col-sm-3 control-label">Unit/Apt Number</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control"
+                           placeholder="Unit/Apt Number"
+                           name="UnitNumber"
+                           id="uNo"
+                           disabled="disabled"
+                           ng-model="mMRc.maintReqObj.UnitNumber" />
+                </div>
+
+            </div>
+
+            <div class="addrAngFormGroup">
+                <label class="col-md-3 control-label">Urgency</label>
+                <div class="col-sm-6">
+                    <select class="form-control" id="urgency" ng-model="mMRc.maintReqObj.urgencyId" name="urgency">
+                        <option value="">Select Urgency</option>
+                        <option value="1">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="3">High</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="addrAngFormGroup" hidden>
+                <label class="col-sm-3 lable">Status</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control"
+                           placeholder="Status"
+                           name="status"
+                           id="status"
+                           ng-model="mMRc.maintReqObj.status" />
+                </div>
+            </div>
+
+            <div class="addrAngFormGroup">
+                <label class="col-sm-3 lable">Subject</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control"
+                           ng-class="{'error': mMRc.shownewMRFormErrors && !mMRc.maintenanceForm.subject.$valid}"
+                           placeholder="Subject"
+                           name="subject"
+                           id="subject"
+                           ng-model="mMRc.maintReqObj.subject"
+                           ng-minlength="2"
+                           ng-maxlength="50"
+                           required />
+                    <div role="alert" class="help-inline error">
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.subject.$error.required">Subject is required</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.subject.$error.minlength">Subject must be at least 2 characters</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.subject.$error.maxlength">Subject must be 50 characters or less</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="addrAngFormGroup">
+                <label class="col-sm-3 lable">Description</label>
+                <div class="col-sm-12">
+                    <textarea type="text" class="form-control  "
+                              ng-class="{'error': mMRc.shownewMRFormErrors && !mMRc.maintenanceForm.description.$valid}"
+                              rows="5"
+                              placeholder="Brief description..."
+                              name="description"
+                              id="description"
+                              ng-model="mMRc.maintReqObj.description"
+                              ng-minlength="2"
+                              ng-maxlength="300"
+                              required />
+                    <div role="alert" class="help-inline error">
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.description.$error.required">Description is required</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.description.$error.minlength">Description must be at least 2 characters</span>
+                        <span class="error" ng-show="mMRc.shownewMRFormErrors && mMRc.maintenanceForm.description.$error.maxlength">Description must be 300 characters or less</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="submit" id="submitReq" class="btn btn-primary">Submit Request</button>
+            <button type="button" id="cancelReq" class="btn btn-warning" ng-click="mMRc.cancel()">Cancel</button>
+        </div>
+    </form>
+</script>
+
+
+
+<script type="text/ng-template" id="modalListContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Maintenance Request</h3>
+    </div>
+    <div>
+        <div class="modal-body col-sm-12">
+            <div class="tile-box addrAngMgnBtmSm" ng-repeat="item in mlc.items">
+                <div ng-random-class ng-classes="mlc.classes">
+                    <div class="tile-header" style="resize: both">
+                        <div class="repeatContent float-left">{{item.subject}}</div>
+
+                        <div class="repeatContent float-right">Unit:   {{item.unit_No}}</div>
+
+                    </div>
+                    <div tile-content-wrapper>
+                        <div class="tile-content">
+
+                            <div class="repeatContent disc" style="text-align:center">{{item.description}}</div>
+
+                            <div>
+                                <div class="repeatContent float-left urgency">
+                                    Urgency:
+                                    <p ng-show="item.urgencyId == 1">Low</p>
+                                    <p ng-show="item.urgencyId == 2">Meduim</p>
+                                    <p ng-show="item.urgencyId == 3">High</p>
+                                </div>
+                               
+                                <span class="small-label badge-yellow status" ng-show="item.status == 1">Submitted</span>
+                                <span class="small-label badge-success status" ng-show="item.status == 2">Open</span>
+                                <span class="small-label badge-primary status" ng-show="item.status == 3">Closed</span>
+                                
+                            </div>
+                        </div>
+                        <div class="tile-footer">
+                            <div class="repeatContent float-right float-left">Added:   {{item.dateAdded | date}}</div>
+
+                            <div class="repeatContent">Requested by:   {{item.name}}</div>
+
+                            <div class="repeatContent float-right">Modified:   {{item.dateModified | date}}</div>
+
+                            <div class="repeatContent">Request Id:   {{item.id}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+
+    </div>
+    
+
+
+    <div class="modal-footer">
+
+        <button class="btn btn-warning" ng-click="mlc.cancel()">Close</button>
+    </div>
+</script>
+
+
+
+
+@section scripts
+{
+    <script src="~/Scripts/sabio.services.address.js"></script>
+    <script src="~/Scripts/sabio.services.state.js"></script>
+    <script src="~/Scripts/sabio.services.amenities.js"></script>
+    <script src="~/Scripts/sabio.services.maintenancerquest.js"></script>
+    <script src="~/Scripts/sabio/maps/sabio.services.geo.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD2aG8twoXw2wn0x0Xt8jB6XlgNVTOwpFA"></script>
+    <script src="~/Scripts/sabio/shared/StatesProvinceCodeFilter.js"></script>
+
+    <script type="text/javascript">
+
+        sabio.page.currentId = '@Model.Item';
+
+    </script>
+
+    <script type="text/javascript">
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .factory('$addressService', addressServiceFactory);
+
+            addressServiceFactory.$inject = ['$baseService'];
+
+            function addressServiceFactory($baseService) {
+
+                var aAddressServiceObject = sabio.services.address;
+
+                var newService = $baseService.merge(true, {}, aAddressServiceObject, $baseService);
+
+                return newService;
+            }
+        })();
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .factory('$amenitiesService', amenitiesServiceFactory);
+
+            amenitiesServiceFactory.$inject = ['$baseService'];
+
+            function amenitiesServiceFactory($baseService) {
+
+                var aSabioServiceObject = sabio.services.amenities;
+
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+
+                return newService;
+            }
+        })();
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                    .factory('$maintReqService', MaintReqServiceFactory);
+
+            MaintReqServiceFactory.$inject = ['$baseService', '$sabio', ];
+
+            function MaintReqServiceFactory($baseService, $sabio) {
+
+                var aMntnceRquestObject = sabio.services.maintenanceRequest;
+
+                var newService = $baseService.merge(true, {}, aMntnceRquestObject, $baseService);
+
+                return newService;
+            }
+
+
+        })();
+
+        (function () {
+
+            "use strict";
+            angular.module(APPNAME).directive('convertToNumber', ConvertToNumber);
+
+            function ConvertToNumber() {
+                return {
+                    require: 'ngModel',
+                    link: function (scope, element, attrs, ngModel) {
+                        ngModel.$parsers.push(function (val) {
+                            return parseInt(val, 10);
+                        });
+                        ngModel.$formatters.push(function (val) {
+                            return '' + val;
+                        });
+                    }
+                };
+            }
+        })();
+
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .controller('addressController', AddressController);
+
+            AddressController.$inject = ['$scope', '$baseController', '$addressService', '$stateService', '$amenitiesService', '$uibModal', '$anchorScroll', '$maintReqService'];
+
+            function AddressController(
+                $scope
+                , $baseController
+                , $addressService
+                , $stateService
+                , $amenitiesService
+                , $uibModal
+                , $anchorScroll
+                , $maintReqService
+                ) {
+
+                var vm = this;
+                vm.items = null;
+                vm.address = null;
+                vm.modalForm = null;
+                vm.showAddressErrors = false;
+                vm.modalSelected = null;
+                $.extend(vm, $baseController);
+
+                vm.address = {};
+                vm.updateAddress = null;
+                vm.updateAddress = {};
+
+                vm.geocoder = null;
+                vm.map = null;
+                vm.geocodeResponse = null;
+
+                vm.$addressService = $addressService;
+                vm.$scope = $scope;
+                vm.$stateService = $stateService;
+                vm.$amenitiesService = $amenitiesService;
+                vm.$uibModal = $uibModal;
+
+                vm.openModal = _openModal;
+                vm.receiveItems = _receiveItems;
+
+                vm.selectAddress = _selectAddress;
+                vm.submitAddressForm = _submitAddressForm;
+                vm.deleteAddress = _deleteAddress;
+                vm.placeMarker = _placeMarker;
+                vm.receiveStates = _receiveStates;
+                vm.statesSuccess = _statesSuccess;
+                vm.statesError = _statesError;
+                vm.receiveAmenities = _receiveAmenities;
+                vm.onGetAmenitiesSuccess = _onGetAmenitiesSuccess;
+                vm.onGetAmenitiesError = _onGetAmenitiesError;
+                vm.addAddressSuccess = _addAddressSuccess;
+                vm.onPutSuccess = _onPutSuccess;
+                vm.onDeleteSuccess = _onDeleteSuccess;
+                vm.onAddressError = _onAddressError;
+                vm.$anchorScroll = $anchorScroll;
+                vm.mapLocation = _mapLocation;
+                vm.onLongLatSuccess = _onLongLatSuccess;
+                vm.onLongLatError = _onLongLatError;
+                vm.mapPlacementStartUp = _mapPlacementStartUp;
+
+                vm.addressId = null;
+                vm.showFormErrors = false;
+
+                vm.$maintReqService = $maintReqService;
+
+                vm.openMRModal = _openMRModal;
+                vm.openListModal = _openListModal;
+
+                vm.addRequest = _addRequest;
+                vm.addSuccess = _addSuccess;
+                vm.addError = _addError;
+                vm.onRequestToAddMRO = _onRequestToAddMRO;
+
+                vm.getMaintReq = _getMaintReq;
+                vm.onReqSuccess = _onReqSuccess;
+                vm.onReqError = _onReqError;
+
+                vm.fireAlert = _fireAlert
+                
+                $baseController.merge(vm, $baseController);
+
+                vm.notify = vm.$addressService.getNotifier($scope);
+
+                render();
+
+                function render() {
+                    vm.$addressService.get(vm.receiveItems, vm.onAddressError);
+                    vm.$stateService.GetByCountryRegionCode("US", vm.statesSuccess, vm.statesError);
+                    vm.$amenitiesService.getList(vm.onGetAmenitiesSuccess, vm.onGetAmenitiesError);
+                    vm.geocoder = new google.maps.Geocoder();
+                    vm.currentUserId = vm.$sabio.currentUserId;
+                    vm.mapPlacementStartUp();
+                }
+
+                function _receiveItems(data) {
+                    vm.notify(function () {
+                        vm.items = data.items;
+                    });
+                }
+
+                function _mapPlacementStartUp() {
+                    var latlng = new google.maps.LatLng(34.052235, -118.243683);
+                    var mapOptions = {
+                        zoom: 8,
+                        center: latlng
+                    }
+                    vm.map = new google.maps.Map($('#map-canvas')[0], mapOptions);
+                }
+
+                function _selectAddress(anAddress) {
+                    vm.address = anAddress;
+                    vm.openModal();
+                }
+
+                function _statesSuccess(data) {
+                    if (data == null) {
+                        vm.$log.error("this is null");
+                    } else {
+                        vm.receiveStates(data);
+                    }
+                }
+
+                function _statesError() {
+                    vm.$log.error("_statesError got hit");
+                }
+
+                function _receiveStates(data) {
+                    vm.notify(function () {
+                        vm.states = data.items;
+                    })
+                }
+
+
+                function _onGetAmenitiesSuccess(data) {
+                    if (data == null) {
+                        vm.$log.error("this is null");
+                    } else {
+                        vm.receiveAmenities(data);
+                    }
+                }
+
+                function _onGetAmenitiesError() {
+                    vm.$log.error("_onGetAmenitiesError got hit");
+                }
+
+                function _receiveAmenities(data) {
+
+                    vm.notify(function () {
+                        vm.amenities = data.items;
+                    })
+                }
+
+                function _openModal() {
+
+                    var modalInstance = vm.$uibModal.open({
+                        animation: true,
+                        templateUrl: 'modalContent.html',
+                        controller: 'modalController as mc',
+                        size: 'md',
+                        resolve: {
+                            modalItem: function () {
+                                return vm.address;
+                            },
+                            states: function () {
+                                return vm.states;
+                            },
+                            amenities: function () {
+                                return vm.amenities;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(_actionRequested, _modalDismissed);
+                }
+
+                function _modalDismissed() {
+                    vm.$log.log('Modal dismissed at: ' + new Date());
+                };
+
+                function _actionRequested(singleAddress) {
+                    vm.address = singleAddress;
+                    vm.submitAddressForm();
+                };
+
+                function _submitAddressForm() {
+                    var address = (vm.address.line1 + " "
+                        + (vm.address.line2 || "") + " "
+                        + vm.address.city + " "
+                        + vm.address.state + " "
+                        + vm.address.zipCode);
+
+                    _geoCodeAddress(address, _onGeoCodeSuccess);
+                }
+
+                function _geoCodeAddress(address, onScb) {
+                    vm.geocoder.geocode({ 'address': address }, onScb);
+                };
+
+                function _onGeoCodeSuccess(results, status) {
+
+                    vm.notify(function () {
+                        vm.geocodeResponse = JSON.stringify(results, null, "     ");
+                    });
+
+                    if (status == google.maps.GeocoderStatus.OK) {
+
+                        var geometry = results[0].geometry;
+                        var loc = geometry.location;
+
+                        vm.map.setCenter(loc);
+
+                        var marker = new google.maps.Marker({
+                            map: vm.map,
+                            position: loc
+                        });
+
+                        if (geometry.viewport)
+                            vm.map.fitBounds(geometry.viewport);
+
+                        var lat = loc.lat();
+                        var lon = loc.lng();
+
+                        vm.$log.log("found coordinates in reply -> (%s, %s)", lat, lon);
+
+                        vm.address.latitude = lat;
+                        vm.address.longitude = lon;
+
+                        _saveAddress();
+
+                    } else {
+                        vm.$alertService.error('Geocode was not successful for the following reason: ' + status);
+                    }
+                }
+
+                function _saveAddress() {
+                    if (vm.address.amenities == null) {
+                        delete vm.address.amenities;  // This is to remove the amenities properties from object if none exist
+                    }
+                    if (vm.address.id) {
+                        vm.$addressService.update(vm.address.id, vm.address, vm.onPutSuccess, vm.onAddressError);
+                        vm.mapLocation(vm.address);
+                    }
+                    else {
+                        vm.$addressService.add(vm.address, vm.addAddressSuccess, vm.onAddressError);
+                        vm.$log.log("data is valid! go save this object -> ", vm.address);
+                    }
+                }
+
+                function _deleteAddress(anAddress) {
+                    vm.address = anAddress;
+                    var addressData = anAddress.id;
+                    vm.$addressService.DeleteById(anAddress.id, vm.onDeleteSuccess, vm.onAddressError);
+                };
+
+                //AJAX onSuccess/onError
+
+                function _addAddressSuccess(data, status, xhr) {
+                    vm.$sabio.currentId = (data.item);
+                    vm.$addressService.get(vm.receiveItems, vm.onAddressError);
+                    vm.$alertService.success("Address added", "Insert successful!");
+                }
+
+                function _onPutSuccess(data, status, xhr) {
+                    vm.$alertService.success("Address saved", "Update successful!");
+                }
+
+                function _onDeleteSuccess(data, status, xhr) {
+                    vm.$alertService.warning("Address removed", "Delete successful!");
+                    render();
+                }
+
+                function _onAddressError(jqXhr, error) {
+                    vm.$alertService.error("Error!", "Something went wrong");
+                }
+
+                function _updateLatLong() {
+                    var addressLatLongId = "id=" + vm.address.id + "&latitude=" + vm.address.latitude + "&longitude=" + vm.address.longitude;
+                    vm.$addressService.updateLatLong(vm.address.id, addressLatLongId, vm.onLongLatSuccess, vm.onLongLatError);
+                }
+
+                function _onLongLatSuccess() {
+                    _mapLocation(vm.address);
+                    vm.$log.log('Lat Long has been updated');
+                    //vm.$alertService.success("Longitude and Latitude has been updated.", "Success");
+                }
+                function _onLongLatError() {
+                    vm.$log.log('This doesnt work ');
+                }
+
+                function _onGeoCSForPartial_Update(results, status) {
+                        vm.notify(function () {
+                            vm.geocodeResponse = JSON.stringify(results, null, "     ");
+                        });
+
+                        if (status == google.maps.GeocoderStatus.OK) {
+
+                            var geometry = results[0].geometry;
+                            var loc = geometry.location;
+
+                            vm.map.setCenter(loc);
+
+                            var marker = new google.maps.Marker({
+                                map: vm.map,
+                                position: loc
+                            });
+
+                            if (geometry.viewport)
+                                vm.map.fitBounds(geometry.viewport);
+
+                            var lat = loc.lat();
+                            var lon = loc.lng();
+
+                            vm.$log.log("found coordinates in reply -> (%s, %s)", lat, lon);
+
+                            vm.address.latitude = lat;
+                            vm.address.longitude = lon;
+
+                            _updateLatLong();
+
+                        } else {
+                            vm.$alertService.error('Geocode was not successful for the following reason: ' + status);
+                        }
+                    }
+                
+                function _placeMarker(address) {
+                    vm.address = address;
+                    if (vm.address.latitude == 0 || vm.address.longitude == 0) {
+                        vm.$alertService.warning("Longitude and Latitude is not present. We are updating the record.", "Error");
+                        var anAddress = (vm.address.line1 + " " +
+                                        (vm.address.line2 || "") + " "
+                                        + vm.address.city + " "
+                                        + vm.address.state
+                                        + " " + vm.address.zipCode);
+
+                        _geoCodeAddress(anAddress, _onGeoCSForPartial_Update); 
+
+                    } else {
+                        vm.mapLocation(vm.address);
+                    }
+                };
+
+                function _mapLocation(theAddress) {
+                    var myLatLng = { lat: theAddress.latitude, lng: theAddress.longitude };
+
+                    var map = new google.maps.Map(document.getElementById('map-canvas'), {
+                        zoom: 14,
+                        center: myLatLng
+                    });
+
+                    var marker = new google.maps.Marker({
+                        position: myLatLng,
+                        map: map,
+                        title: 'Rent this place!'
+                    });
+                    vm.$anchorScroll('top');
+                }
+
+
+                ///Add Request Modal
+
+                function _openMRModal(address) {
+
+                    var modalInstance = vm.$uibModal.open({
+                        animation: true,
+                        templateUrl: 'modalMRContent.html',
+                        controller: 'modal_MR_Controller as mMRc',
+                        size: 'sm',
+                        resolve: {
+                            targetAddress: function () {
+                                return address;
+
+                            }
+
+                        }
+
+                    });
+
+                    console.log(address.id);
+
+                    modalInstance.result.then(_onRequestToAddMRO, _onReqDismissed);
+
+                }
+
+                function _onRequestToAddMRO(selectedItem, targetAddress) {
+
+                    vm.modalSelected = selectedItem;//mro
+
+                    vm.addRequest(vm.modalSelected);
+
+                }
+
+                function _addRequest(mro) {
+
+                    vm.$maintReqService.addressId(mro, vm.addSuccess, vm.addError);
+
+                };
+
+                function _onReqDismissed() {
+                    console.log('Modal dismissed at: ' + new Date());
+                }
+
+                function _addSuccess() {
+                    vm.fireAlert('success', 'Maintenance request added to database', 'Insert successful');
+                    vm.showFormErrors = false;
+                }
+
+                function _addError() {
+                    vm.fireAlert('error', 'Try again', 'Insert failed')
+            }
+
+
+                function _getMaintReq(address) {
+                    console.log(address.id);
+                    vm.addressId = address.id;
+                    vm.$maintReqService.getByAddressId(vm.addressId, vm.onReqSuccess, vm.onReqError);
+                }
+
+                function _onReqSuccess(data, status, xhr) {
+
+                    if (data.items === null) {
+                        vm.$log.log("Item is null");
+                        vm.fireAlert('error', 'No requests for this address', 'Null item')
+                    } else {
+
+                        vm.maintReqs = data.items;
+                        vm.$log.log(vm.maintReqs);
+                        vm.openListModal();
+                    }
+                }
+
+                function _onReqError(jqXhr, error) {
+                    vm.$log.log(Error);
+                }
+
+                function _fireAlert(type, message, header) {
+                    vm.$alertService[type](message, header);
+                }
+
+
+
+                /// List Request Modal
+
+                function _openListModal() {
+
+                    var modalInstance = vm.$uibModal.open({
+                        animation: true,
+                        templateUrl: 'modalListContent.html',
+                        controller: 'modalListController as mlc',
+                        size: 'sm',
+                        resolve: {
+
+                            items: function () {
+
+                                return vm.maintReqs;
+                            }
+                        }
+                    });
+
+                }
+
+
+
+            }
+
+        })();
+
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .controller('modalController', ModalController);
+
+            ModalController.$inject = ['$scope', '$baseController', '$uibModalInstance', 'modalItem', 'states', 'amenities']
+
+            function ModalController(
+                $scope
+                , $baseController
+                , $uibModalInstance
+                , modalItem
+                , states
+                , amenities) {
+
+                var vm = this;
+
+                $baseController.merge(vm, $baseController);
+
+                vm.$scope = $scope;
+                vm.$uibModalInstance = $uibModalInstance;
+                vm.addressObject = modalItem;
+                vm.states = states;
+                vm.amenities = amenities;
+
+
+                vm.ok = function () {
+
+                    if (vm.modalForm.$valid) {
+
+                        vm.$uibModalInstance.close(vm.addressObject);
+                    }
+                    else {
+                        vm.$alertService.error("Error!", "Data not valid; try again");
+                    }
+                };
+
+                vm.cancel = function () {
+                    vm.$uibModalInstance.dismiss('cancel');
+                };
+            }
+        })();
+
+
+
+        /// Request Modal Ctrl
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .controller('modal_MR_Controller', ModalMR_Controller);
+
+            ModalMR_Controller.$inject = ['$scope', '$baseController', '$uibModalInstance', 'targetAddress']
+
+            function ModalMR_Controller(
+                $scope
+                , $baseController
+                , $uibModalInstance
+                , targetAddress
+                ) {
+
+                var vm = this;
+
+                vm.showFormErrors = false;
+
+                $baseController.merge(vm, $baseController);
+
+                vm.$scope = $scope;
+                vm.targetAddress = targetAddress;
+                vm.maintReqObj = {};
+                vm.maintenanceForm = null;
+                vm.$uibModalInstance = $uibModalInstance;
+
+
+
+                render()
+
+                function render() {
+                    vm.maintReqObj.UnitNumber = vm.targetAddress.line2;
+                    vm.maintReqObj.id = vm.targetAddress.id;
+                    vm.maintReqObj.uNo = vm.targetAddress.line2;
+                    vm.maintReqObj.status = "1";
+                }
+
+                vm.ok = function () {
+                    vm.showFormErrors = true;
+                    if (vm.maintenanceForm.$valid) {
+                        console.log('valid');
+                        vm.$uibModalInstance.close(vm.maintReqObj, vm.targetAddress);
+
+                    }
+                    console.log(vm.maintReqObj);
+                };
+
+                vm.cancel = function () {                    
+                    vm.$uibModalInstance.dismiss('cancel');
+                };
+
+
+            }
+        })();
+
+
+
+
+        /// List Modal Ctrl
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .controller('modalListController', ModalListController);
+
+            ModalListController.$inject = ['$scope', '$baseController', '$uibModalInstance', 'items']
+
+            function ModalListController(
+                $scope
+                , $baseController
+                , $uibModalInstance
+                , items
+                ) {
+
+                var vm = this;
+                vm.items = items;
+
+                $baseController.merge(vm, $baseController);
+
+                vm.$scope = $scope;
+                vm.$uibModalInstance = $uibModalInstance;
+                vm.maintReqObj = {};
+
+                vm.urgencyList =
+                [
+                { urgencyId: 1, urgencyName: "Low" },
+                { urgencyId: 2, urgencyName: "Medium" },
+                { urgencyId: 3, urgencyName: "High" }
+                ];
+
+                vm.statusList =
+                [
+                { statusId: 1, statusName: "Submitted" },
+                { statusId: 2, statusName: "Open" },
+                { statusId: 3, statusName: "Closed" }
+                ];
+
+                vm.ok = function () {
+                    vm.$uibModalInstance.close(vm.selected.items);
+
+                };
+
+                vm.cancel = function () {
+                    vm.$uibModalInstance.dismiss('cancel');
+                };
+
+
+                vm.classes = [
+                    "bg-primary",
+                    "bg-black",
+                    "bg-purple",
+                    "bg-red",
+                    "bg-blue"
+                ];
+
+
+            }
+        })();
+
+        (function () {
+            angular.module(APPNAME)
+            .directive("ngRandomClass", function () {
+                return {
+                    restrict: 'EA',
+                    replace: false,
+                    scope: {
+                        ngClasses: "="
+                    },
+                    link: function (scope, elem, attr) {
+
+                        elem.addClass(scope.ngClasses[Math.floor(Math.random() * (scope.ngClasses.length))]);
+                    }
+                }
+            }
+            )
+        })();
+
+    </script>
+}
