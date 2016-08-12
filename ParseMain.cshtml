@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<ul class="nav nav-tabs" ng-controller="mainController as parseCtrl">
+    <li ng-class="parseCtrl.tabClass(tab)" ng-repeat="tab in parseCtrl.tabs">
+        <a href="{{tab.link}}" ng-click="parseCtrl.setSelectedTab(tab)">{{tab.label}}</a>
+    </li>
+</ul>
+<div ng-view></div>
+
+<script type="text/ng-template" id="/templates/main.html">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body" id="parseControllerElement" style="background-color:antiquewhite;">
+                    <h4>{{parseCtrl.heading}}</h4>
+                    <p>{{parseCtrl.message}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+
+
+@section scripts
+{
+    <script src="~/Scripts/sabio/parse/services.parseprice.js"></script>
+    <script src="~/Scripts/sabio/parse/services.parse.js"></script>
+    <script src="~/Scripts/sabio.services.importedRents.js"></script>
+    <script src="~/Scripts/sabio.services.importedProperties.js"></script>
+    <script src="~/Scripts/sabio/maps/services.geo.js"></script>
+    <script src="~/Scripts/papaparse.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD2aG8twoXw2wn0x0Xt8jB6XlgNVTOwpFA"></script>
+
+    <script type="text/javascript">
+
+
+        (function () {
+            "use strict";
+
+            angular.module('app', ['ngRoute']);
+
+            angular.module(APPNAME)
+                .config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
+
+                    $routeProvider.when('/', {
+                        templateUrl: '/templates/main.html',
+                        controller: 'mainController',
+                        controllerAs: 'parseCtrl'
+                    }).when('/rent', {
+                        templateUrl: '/Scripts/sabio/parse/parseprice.html',
+                        controller: 'parseController',
+                        controllerAs: 'parse'
+                    }).when('/properties', {
+                        templateUrl: '/Scripts/sabio/parse/parse.html',
+                        controller: 'importController',
+                        controllerAs: 'importCtrl'
+                    });
+
+                    $locationProvider.html5Mode(false);
+
+                }]);
+
+        })();
+
+        (function () {
+            "use strict";
+
+            angular.module(APPNAME)
+                .controller('mainController', MainController);
+
+            MainController.$inject = ['$scope', '$baseController'];
+
+            function MainController(
+                $scope
+                , $baseController) {
+
+                var vm = this;
+
+                $baseController.merge(vm, $baseController);
+
+                vm.$scope = $scope;
+
+                vm.currentRequestLabel = "Current Request:";
+
+                vm.tabs = [
+                  { link: '#/', label: 'Home' },
+                  { link: '#/rent', label: 'Import Rents' },
+                  { link: '#/properties', label: 'Import Properties' }
+                ];
+
+                vm.selectedTab = vm.tabs[0];
+
+                vm.tabClass = _tabClass;
+                vm.setSelectedTab = _setSelectedTab;
+
+                render();
+
+                function render() {
+                    vm.setUpCurrentRequest(vm);
+
+                    switch (vm.currentRequest.originalPath) {
+                        case "/":
+                            vm.heading = "File Uploader";
+                            vm.message = "Please select a tab to upload a file";
+                            break;
+
+                        case "/rent":
+                            break;
+
+                        case "/properties":
+                            break;
+                    }
+                }
+
+                function _tabClass(tab) {
+                    if (vm.selectedTab == tab) {
+                        return "active";
+                    } else {
+                        return "";
+                    }
+                }
+
+                function _setSelectedTab(tab) {
+
+                    vm.selectedTab = tab;
+                }
+            }
+        })();
+    </script>
+}
+
+
