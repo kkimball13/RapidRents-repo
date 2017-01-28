@@ -1,6 +1,5 @@
 ﻿
 @{
-    ViewBag.Title = "List";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -12,52 +11,52 @@
 
 @section scripts {
     <script src="~/Scripts/jquery.validate.min.js"></script>
-    <script src="~/Scripts/sabio.services.users.js"></script>
+    <script src="~/Scripts/rapd.services.users.js"></script>
     <script src="~/assets/admin/widgets/daterangepicker/moment.js"></script>
     <script type="text/javascript">
 
 
 
-        sabio.page.startUp = function () {
+        rapd.page.startUp = function () {
 
-            sabio.page.userContainer = $('#listAppend');
-            sabio.page.getUsers();
+            rapd.page.userContainer = $('#listAppend');
+            rapd.page.getUsers();
 
-            $('#listAppend').on('click', '.deleteUser', sabio.page.deleteUser);
+            $('#listAppend').on('click', '.deleteUser', rapd.page.deleteUser);
             
         }
 
-        sabio.page.formatDate = function (date) {
+       rapd.page.formatDate = function (date) {
             return moment(date).format('L');
         }
 
-        sabio.page.getUsers = function () {
+        rapd.page.getUsers = function () {
 
-            sabio.services.users.getUsers(sabio.page.handlers.onGetSuccess, sabio.page.AjaxError)
+            rapd.services.users.getUsers(rapd.page.handlers.onGetSuccess, rapd.page.AjaxError)
 
         };
 
-        sabio.page.handlers.onGetSuccess = function (data) {
-            console.log(data.items)
+        rapd.page.handlers.onGetSuccess = function (data) {
+            //console.log(data.items)
             if (data && data.items) {
-                sabio.page.processUsers(data.items);
+                rapd.page.processUsers(data.items);
             }
 
         }
 
-        sabio.page.processUsers = function (arrUsers) {
+        rapd.page.processUsers = function (arrUsers) {
 
             for (var i = 0; i < arrUsers.length; i++) {
                 var currentUser = arrUsers[i];
-                sabio.page.processUser(i, currentUser);
+                rapd.page.processUser(i, currentUser);
             }
 
         }
 
-        sabio.page.processUser = function (userIndex, userData) {
+        rapd.page.processUser = function (userIndex, userData) {
             
-            var displayName = sabio.page.getDisplayName(userData);
-            var convertedDate = sabio.page.formatDate(userData.dateOfBirth);
+            var displayName = rapd.page.getDisplayName(userData);
+            var convertedDate = rapd.page.formatDate(userData.dateOfBirth);
 
             var item = $($("#listItemTemplate").html());
             item.find(".fullname").text(displayName);
@@ -72,16 +71,16 @@
             item.find("a").attr("href", ("/users/" + (userData.id) + "/edit"));
 
 
-            sabio.page.appendUser(item);
+           rapd.page.appendUser(item);
         }
 
-        sabio.page.appendUser = function (jqUserObject) {
+        rapd.page.appendUser = function (jqUserObject) {
 
-            sabio.page.userContainer.append(jqUserObject);
+            rapd.page.userContainer.append(jqUserObject);
 
         }
 
-        sabio.page.getDisplayName = function (userData) {
+        rapd.page.getDisplayName = function (userData) {
 
             var salutation;
             switch (userData.salutationId) {
@@ -107,20 +106,19 @@
         }
 
 
-        sabio.page.deleteUser = function () {
-            console.log("delete pushed");
-            var id = $(this).attr("id");
-            sabio.services.users.deleteUserById(id, sabio.page.handlers.deleteSuccess, sabio.page.AjaxError);
+       rapd.page.deleteUser = function () {
+          var id = $(this).attr("id");
+           rapd.services.users.deleteUserById(id, rapd.page.handlers.deleteSuccess, rapd.page.AjaxError);
         }
 
 
-        sabio.page.handlers.deleteSuccess = function (data, userId) {
+        rapd.page.handlers.deleteSuccess = function (data, userId) {
 
             $("#" + userId).closest("#listAppend").remove();
         }
  
 
-        sabio.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
+        rapd.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
             $("#msgWindow").addClass("alert-danger");
             $("#msgWindow").removeClass("alert-info");
         }
