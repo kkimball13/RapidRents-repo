@@ -1,8 +1,5 @@
-﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int?>
+﻿@model Rapd.Web.Models.ViewModels.ItemViewModel<int?>
 @{
-
-    ViewBag.Title = "AddAddressAngular";
-
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 
@@ -400,17 +397,17 @@
 
 @section scripts
 {
-    <script src="~/Scripts/sabio.services.address.js"></script>
-    <script src="~/Scripts/sabio.services.state.js"></script>
-    <script src="~/Scripts/sabio.services.amenities.js"></script>
-    <script src="~/Scripts/sabio.services.maintenancerquest.js"></script>
-    <script src="~/Scripts/sabio/maps/sabio.services.geo.js"></script>
+    <script src="~/Scripts/rapd.services.address.js"></script>
+    <script src="~/Scripts/rapd.services.state.js"></script>
+    <script src="~/Scripts/rapd.services.amenities.js"></script>
+    <script src="~/Scripts/rapd.services.maintenancerquest.js"></script>
+    <script src="~/Scripts/rapd/maps/rapd.services.geo.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD2aG8twoXw2wn0x0Xt8jB6XlgNVTOwpFA"></script>
-    <script src="~/Scripts/sabio/shared/StatesProvinceCodeFilter.js"></script>
+    <script src="~/Scripts/rapd/shared/StatesProvinceCodeFilter.js"></script>
 
     <script type="text/javascript">
 
-        sabio.page.currentId = '@Model.Item';
+        rapd.page.currentId = '@Model.Item';
 
     </script>
 
@@ -426,7 +423,7 @@
 
             function addressServiceFactory($baseService) {
 
-                var aAddressServiceObject = sabio.services.address;
+                var aAddressServiceObject = rapd.services.address;
 
                 var newService = $baseService.merge(true, {}, aAddressServiceObject, $baseService);
 
@@ -444,9 +441,9 @@
 
             function amenitiesServiceFactory($baseService) {
 
-                var aSabioServiceObject = sabio.services.amenities;
+                var aRapdServiceObject = rapd.services.amenities;
 
-                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                var newService = $baseService.merge(true, {}, aRapdServiceObject, $baseService);
 
                 return newService;
             }
@@ -458,11 +455,11 @@
             angular.module(APPNAME)
                     .factory('$maintReqService', MaintReqServiceFactory);
 
-            MaintReqServiceFactory.$inject = ['$baseService', '$sabio', ];
+            MaintReqServiceFactory.$inject = ['$baseService', '$rapd', ];
 
-            function MaintReqServiceFactory($baseService, $sabio) {
+            function MaintReqServiceFactory($baseService, $rapd) {
 
-                var aMntnceRquestObject = sabio.services.maintenanceRequest;
+                var aMntnceRquestObject = rapd.services.maintenanceRequest;
 
                 var newService = $baseService.merge(true, {}, aMntnceRquestObject, $baseService);
 
@@ -587,7 +584,7 @@
                     vm.$stateService.GetByCountryRegionCode("US", vm.statesSuccess, vm.statesError);
                     vm.$amenitiesService.getList(vm.onGetAmenitiesSuccess, vm.onGetAmenitiesError);
                     vm.geocoder = new google.maps.Geocoder();
-                    vm.currentUserId = vm.$sabio.currentUserId;
+                    vm.currentUserId = vm.$rapd.currentUserId;
                     vm.mapPlacementStartUp();
                 }
 
@@ -754,7 +751,7 @@
                 //AJAX onSuccess/onError
 
                 function _addAddressSuccess(data, status, xhr) {
-                    vm.$sabio.currentId = (data.item);
+                    vm.$rapd.currentId = (data.item);
                     vm.$addressService.get(vm.receiveItems, vm.onAddressError);
                     vm.$alertService.success("Address added", "Insert successful!");
                 }
