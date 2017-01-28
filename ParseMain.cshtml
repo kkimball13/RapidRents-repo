@@ -26,11 +26,11 @@
 
 @section scripts
 {
-    <script src="~/Scripts/sabio/parse/services.parseprice.js"></script>
-    <script src="~/Scripts/sabio/parse/services.parse.js"></script>
-    <script src="~/Scripts/sabio.services.importedRents.js"></script>
-    <script src="~/Scripts/sabio.services.importedProperties.js"></script>
-    <script src="~/Scripts/sabio/maps/services.geo.js"></script>
+    <script src="~/Scripts/rapd/parse/services.parseprice.js"></script>
+    <script src="~/Scripts/rapd/parse/services.parse.js"></script>
+    <script src="~/Scripts/rapd.services.importedRents.js"></script>
+    <script src="~/Scripts/rapd.services.importedProperties.js"></script>
+    <script src="~/Scripts/rapd/maps/services.geo.js"></script>
     <script src="~/Scripts/papaparse.js"></script>
     <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD2aG8twoXw2wn0x0Xt8jB6XlgNVTOwpFA"></script>
 
@@ -50,11 +50,11 @@
                         controller: 'mainController',
                         controllerAs: 'parseCtrl'
                     }).when('/rent', {
-                        templateUrl: '/Scripts/sabio/parse/parseprice.html',
+                        templateUrl: '/Scripts/rapd/parse/parseprice.html',
                         controller: 'parseController',
                         controllerAs: 'parse'
                     }).when('/properties', {
-                        templateUrl: '/Scripts/sabio/parse/parse.html',
+                        templateUrl: '/Scripts/rapd/parse/parse.html',
                         controller: 'importController',
                         controllerAs: 'importCtrl'
                     });
