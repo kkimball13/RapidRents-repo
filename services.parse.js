@@ -9,17 +9,17 @@
 
             function ParseUtilityFactory() {
 
-                var aSabioUtilityObject = this;
-                aSabioUtilityObject.parse = _internalParse;
+                var aRapdUtilityObject = this;
+                aRapdUtilityObject.parse = _internalParse;
 
 
                 function _internalParse(opts) {
 
-                    var file = document.querySelector(opts.sabioFileId).files[0];
-                    $(opts.sabioFileId).parse(opts);
+                    var file = document.querySelector(opts.rapdFileId).files[0];
+                    $(opts.rapdFileId).parse(opts);
                 }
 
-                return aSabioUtilityObject;
+                return aRapdUtilityObject;
             }
   })();
 
@@ -35,9 +35,9 @@
 
       function ImportPropertyServiceFactory($baseService) {
 
-          var aSabioServiceObject = sabio.services.importedProperties;
+          var aRapdServiceObject = rapd.services.importedProperties;
 
-          var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+          var newService = $baseService.merge(true, {}, aRapdServiceObject, $baseService);
 
           return newService;
       }
@@ -94,7 +94,7 @@
                       header: true,
                       worker: true
                   },
-                  sabioFileId: "#parseFile"
+                  rapdFileId: "#parseFile"
 
               };
 
