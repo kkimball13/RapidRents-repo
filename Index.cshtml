@@ -1,17 +1,8 @@
-﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int?>
+﻿@model rapd.Web.Models.ViewModels.ItemViewModel<int?>
 @{
 
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
-
-@section styles {
-    <style type="text/css">
-        .userMgnBtmSm {
-            padding-bottom: 15px;
-        }
-    </style>
-}
-
 
 <div class="bg-primary">
     <h2 class="col-sm-offset-1">User Information @Model.Item</h2>
@@ -85,29 +76,29 @@
 
 @section scripts {
     <script src="~/Scripts/jquery.validate.min.js"></script>
-    <script src="~/Scripts/sabio.services.users.js"></script>
+    <script src="~/Scripts/rapd.services.users.js"></script>
     <script src="~/assets/admin/widgets/parsley/parsley.js"></script>
     <script src="~/assets/admin/widgets/daterangepicker/moment.js"></script>
     <script>
 
-        sabio.page.userid = '@Model.Item';
+        rapd.page.userid = '@Model.Item';
     </script>
 
     <script type="text/javascript">
-        sabio.page.startUp = function () {
+        rapd.page.startUp = function () {
 
-            if (sabio.page.userid) {
+            if (rapd.page.userid) {
 
-                sabio.services.users.getUserById(sabio.page.userid, sabio.page.AjaxGetSuccess, sabio.page.AjaxError);
+                rapd.services.users.getUserById(rapd.page.userid, rapd.page.AjaxGetSuccess, rapd.page.AjaxError);
                 console.log("Getting user by ID");
             }
 
-            $("#btn-submit-sample").on("click", sabio.page.handlers.formSubmit)
+            $("#btn-submit-sample").on("click", rapd.page.handlers.formSubmit)
 
-            sabio.page.initializeValidation();
+           rapd.page.initializeValidation();
         };
 
-        sabio.page.initializeValidation = function () {
+        rapd.page.initializeValidation = function () {
             jQuery.validator.setDefaults({
                 debug: true
             });
@@ -180,37 +171,37 @@
             });
         };
 
-        sabio.page.handlers.formSubmit = function () {
+        rapd.page.handlers.formSubmit = function () {
 
             if ($("#user-information").valid()) {
 
                 var myData = $("#user-information").serialize();
 
-                if (sabio.page.userid) {
+                if (rapd.page.userid) {
 
-                    var data = myData + '&Id=' + sabio.page.userid
-                    sabio.services.users.update(sabio.page.userid, data, sabio.page.AjaxPutSuccess, sabio.page.AjaxError);
+                    var data = myData + '&Id=' + rapd.page.userid
+                    rapd.services.users.update(rapd.page.userid, data, rapd.page.AjaxPutSuccess, rapd.page.AjaxError);
                 }
 
                 else {
-                    sabio.services.users.add(myData, sabio.page.AjaxPostSuccess, sabio.page.AjaxError);
+                    rapdo.services.users.add(myData, rapd.page.AjaxPostSuccess, rapd.page.AjaxError);
                 }
             }
 
         }
 
-        sabio.page.AjaxGetSuccess = function (data, status, xhr) {
-            console.log(sabio.page.userid);
-            sabio.page.populateForm(0, data.item);
+        rapd.page.AjaxGetSuccess = function (data, status, xhr) {
+            console.log(rapd.page.userid);
+            rapd.page.populateForm(0, data.item);
         }
 
-        sabio.page.formatDate = function (date) {
+        rapd.page.formatDate = function (date) {
             return moment(date).format('L');
         }
 
-        sabio.page.populateForm = function (userIndex, userData) {
+        rapd.page.populateForm = function (userIndex, userData) {
 
-            var convertedDate = sabio.page.formatDate(userData.dateOfBirth);
+            var convertedDate = rapd.page.formatDate(userData.dateOfBirth);
 
             $("#salutationId").val(userData.salutationId);
             $("#firstName").val(userData.firstName);
@@ -222,20 +213,20 @@
 
         }
 
-        sabio.page.AjaxPostSuccess = function (data, status, xhr) {
+        rapd.page.AjaxPostSuccess = function (data, status, xhr) {
             console.log(data.item);
-            sabio.page.userid = data.item;
+            rapd.page.userid = data.item;
         }
 
-        sabio.page.AjaxPutSuccess = function (data, status, xhr) {
+        rapd.page.AjaxPutSuccess = function (data, status, xhr) {
             console.log("success");
         }
 
-        sabio.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
+        rapd.page.AjaxError = function (jqXHR, textStatus, errorThrown) {
             $("#msgWindow").addClass("alert-danger");
             $("#msgWindow").removeClass("alert-info");
 
-            sabio.page.logToBottom = function (data) {
+            rapd.page.logToBottom = function (data) {
                 $("itemId").html(JSON.stringify(data));
             }
         }
