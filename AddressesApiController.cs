@@ -1,14 +1,14 @@
-﻿using Sabio.Web.Domain.Address;
-using Sabio.Web.Models.Requests;
-using Sabio.Web.Models.Requests.Addresses;
-using Sabio.Web.Models.Responses;
-using Sabio.Web.Services;
-using Sabio.Web.Services.Addresses;
+﻿using Rapd.Web.Domain.Address;
+using Rapd.Web.Models.Requests;
+using Rapd.Web.Models.Requests.Addresses;
+using Rapd.Web.Models.Responses;
+using Rapd.Web.Services;
+using Rapd.Web.Services.Addresses;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace Sabio.Web.Controllers.Api
+namespace Rapd.Web.Controllers.Api
 {
     [RoutePrefix("api/addresses")]
     public class AddressesApiController : ApiController
