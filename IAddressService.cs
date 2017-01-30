@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Sabio.Web.Domain.Address;
-using Sabio.Web.Models.Requests.Addresses;
+using Rapd.Web.Domain.Address;
+using Rapd.Web.Models.Requests.Addresses;
 using System.Data;
 
-namespace Sabio.Web.Services.Addresses
+namespace Rapd.Web.Services.Addresses
 {
     public interface IAddressService
     {
